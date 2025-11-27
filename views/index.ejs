@@ -1,9 +1,13 @@
 <h1>All Posts</h1>
 
-<ul>
-  <% posts.forEach(post => { %>
-    <li>
-      <a href="/posts/<%= post._id %>"><%= post.title %></a>
-    </li>
-  <% }) %>
-</ul>
+<% if (posts && posts.length) { %>
+  <ul>
+    <% posts.forEach(post => { %>
+      <li>
+        <a href="/posts/<%= post._id %>"><%= post.title %></a>
+      </li>
+    <% }) %>
+  </ul>
+<% } else { %>
+  <p>No posts found yet. Try seeding the database or create a new post.</p>
+<% } %>
