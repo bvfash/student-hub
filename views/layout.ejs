@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Teacher Updates</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="container">
+      <a class="brand" href="/posts">Teacher Updates</a>
+      <div class="navlinks">
+        <a href="/posts">Home</a>
+        <% if (!currentUser) { %>
+          <a href="/login">Login</a>
+          <a href="/signup">Signup</a>
+        <% } else { %>
+          <% if (currentUser.role === 'admin') { %>
+            <a href="/admin">Dashboard</a>
+          <% } %>
+          <span>Logged in as <strong><%= currentUser.name %></strong></span>
+          <form style="display:inline" action="/logout" method="post">
+            <button type="submit" class="btn">Logout</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <% if (success && success.length) { %>
+      <div class="alert success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+    <%- body %>
+  </main>
+</body>
+</html>
