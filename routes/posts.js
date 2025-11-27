@@ -1,51 +1,56 @@
+// routes/posts.js
 const express = require('express');
 const router = express.Router();
-const { Post, User, Comment } = require('../models');
-const { ensureLoggedIn } = require('../utils/authMiddleware');
+const Post = require('../models/post'); // adjust path if needed
 
-// List posts
-router.get('/posts', async (req, res) => {
-  const posts = await Post.findAll({
-    include: [{ model: User, as: 'author' }, { model: User, as: 'Likers' }, { model: Comment }],
-    order: [['createdAt', 'DESC']]
-  });
-  const postsWithCounts = posts.map(p => ({
-    id: p.id,
-    title: p.title,
-    content: p.content,
-    imageUrl: p.imageUrl,
-    createdAt: p.createdAt,
-    author: p.author,
-    likesCount: p.Likers ? p.Likers.length : 0,
-    commentsCount: p.Comments ? p.Comments.length : 0
-  }));
-  res.render('index', { posts: postsWithCounts });
-});
-
-// Post detail
-router.get('/posts/:id', async (req, res) => {
-  const post = await Post.findByPk(req.params.id, {
-    include: [
-      { model: User, as: 'author' },
-      { model: User, as: 'Likers' },
-      { model: Comment, include: [{ model: User, as: 'user' }] }
-    ]
-  });
-  if (!post) return res.redirect('/posts');
-  const likedByUser = req.session.user ? post.Likers.some(u => u.id === req.session.user.id) : false;
-  res.render('post', { post, likesCount: post.Likers.length, comments: post.Comments, likedByUser });
-});
-
-// Add comment
-router.post('/posts/:id/comments', ensureLoggedIn, async (req, res) => {
-  const { text } = req.body;
-  if (!text || text.trim() === '') {
-    req.flash('error', 'Comment cannot be empty.');
-    return res.redirect(`/posts/${req.params.id}`);
+// GET /posts - list all posts
+router.get('/', async (req, res) => {
+  try {
+    const posts = await Post.find({}).sort({ createdAt: -1 });
+    res.render('index', { posts }); // index.ejs expects "posts"
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    res.status(500).send('Server error');
   }
-  await Comment.create({ text, postId: req.params.id, userId: req.session.user.id });
-  req.flash('success', 'Comment added.');
-  res.redirect(`/posts/${req.params.id}`);
+});
+
+// GET /posts/:id - single post
+router.get('/:id', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).send('Post not found');
+    res.render('post', { post }); // post.ejs expects "post"
+  } catch (err) {
+    console.error('Error fetching post:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST /posts - quick create (for testing/seeding via HTTP)
+router.post('/', async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const created = await Post.create({ title, content });
+    res.redirect(`/posts/${created._id}`);
+  } catch (err) {
+    console.error('Error creating post:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// POST /posts/:id/comments - add comment
+router.post('/:id/comments', async (req, res) => {
+  try {
+    const { author, content } = req.body;
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).send('Post not found');
+    post.comments.push({ author, content });
+    await post.save();
+    res.redirect(`/posts/${post._id}`);
+  } catch (err) {
+    console.error('Error adding comment:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;
