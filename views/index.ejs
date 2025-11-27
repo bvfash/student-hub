@@ -1,22 +1,9 @@
-<% layout('layout') -%>
-
 <h1>All Posts</h1>
 
-<% if (posts.length === 0) { %>
-  <p>No posts yet.</p>
-<% } %>
-
-<div class="posts">
-  <% posts.forEach(p => { %>
-    <div class="post-card">
-      <h2><%= p.title %></h2>
-      <p class="meta">by <%= p.author ? p.author.name : 'Unknown' %> • <%= new Date(p.createdAt).toLocaleString() %></p>
-      <p><%= p.content.length > 200 ? p.content.slice(0,200) + '...' : p.content %></p>
-      <div class="post-stats">
-        <span>❤️ <%= p.likesCount %></span>
-        <span>💬 <%= p.commentsCount %></span>
-        <a href="/posts/<%= p.id %>">Read more</a>
-      </div>
-    </div>
+<ul>
+  <% posts.forEach(post => { %>
+    <li>
+      <a href="/posts/<%= post._id %>"><%= post.title %></a>
+    </li>
   <% }) %>
-</div>
+</ul>

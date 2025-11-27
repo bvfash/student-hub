@@ -1,66 +1,10 @@
-<% layout('layout') -%>
+<h1><%= post.title %></h1>
 
-<article class="post-full">
-  <h1><%= post.title %></h1>
-  <p class="meta">by <%= post.author ? post.author.name : 'Unknown' %> • <%= new Date(post.createdAt).toLocaleString() %></p>
-  <% if (post.imageUrl) { %>
-    <img src="<%= post.imageUrl %>" alt="post image" class="post-image"/>
-  <% } %>
-  <div class="post-content"><%= post.content %></div>
+<p><%= post.content %></p>
 
-  <div class="actions">
-    <span id="likesCount">❤️ <%= likesCount %></span>
-    <% if (currentUser) { %>
-      <button id="likeBtn"><%= likedByUser ? 'Unlike' : 'Like' %></button>
-    <% } else { %>
-      <a href="/login">Login to like</a>
-    <% } %>
-  </div>
-
-  <section class="comments">
-    <h3>Comments (<%= comments.length %>)</h3>
-    <% if (comments.length === 0) { %>
-      <p>No comments yet.</p>
-    <% } %>
-    <ul>
-      <% comments.forEach(c => { %>
-        <li>
-          <strong><%= c.user ? c.user.name : 'User' %></strong>
-          <small><%= new Date(c.createdAt).toLocaleString() %></small>
-          <p><%= c.text %></p>
-          <% if (currentUser && currentUser.role === 'admin') { %>
-            <form method="post" action="/admin/comments/<%= c.id %>?_method=DELETE" style="display:inline">
-              <button type="submit">Delete</button>
-            </form>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
-
-    <% if (currentUser) { %>
-      <form method="post" action="/posts/<%= post.id %>/comments">
-        <textarea name="text" rows="3" required placeholder="Write a comment..."></textarea>
-        <button type="submit">Add Comment</button>
-      </form>
-    <% } else { %>
-      <p><a href="/login">Login</a> to add comments.</p>
-    <% } %>
-  </section>
-</article>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const likeBtn = document.getElementById('likeBtn');
-  if (!likeBtn) return;
-  likeBtn.addEventListener('click', async () => {
-    const res = await fetch('/api/posts/<%= post.id %>/like', { method: 'POST', headers: {'Content-Type':'application/json'} });
-    const j = await res.json();
-    if (j.ok) {
-      document.getElementById('likesCount').innerText = '❤️ ' + (j.liked ? (parseInt(document.getElementById('likesCount').innerText.replace(/[^0-9]/g,'')) + 1) : (Math.max(0, parseInt(document.getElementById('likesCount').innerText.replace(/[^0-9]/g,'')) - 1)));
-      likeBtn.innerText = j.liked ? 'Unlike' : 'Like';
-    } else {
-      alert('Error toggling like.');
-    }
-  });
-});
-</script>
+<h3>Comments</h3>
+<ul>
+  <% (post.comments || []).forEach(comment => { %>
+    <li><%= comment.content %> — <i><%= comment.author %></i></li>
+  <% }) %>
+</ul>

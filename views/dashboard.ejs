@@ -1,32 +1,10 @@
-<% layout('layout') -%>
+<h1>Dashboard</h1>
 
-<h1>Admin Dashboard</h1>
+<p>Welcome <%= user && user.name ? user.name : 'user' %>!</p>
 
-<section class="admin-actions">
-  <h2>Create Post</h2>
-  <form method="post" action="/admin/posts">
-    <label>Title</label>
-    <input name="title" required />
-    <label>Image URL (optional)</label>
-    <input name="imageUrl" />
-    <label>Content</label>
-    <textarea name="content" rows="6" required></textarea>
-    <button type="submit">Create</button>
-  </form>
-</section>
-
-<section>
-  <h2>All Posts</h2>
-  <% if (posts.length === 0) { %>
-    <p>No posts yet.</p>
-  <% } %>
-  <ul>
-    <% posts.forEach(p => { %>
-      <li>
-        <strong><%= p.title %></strong> (<%= new Date(p.createdAt).toLocaleString() %>)
-        <form style="display:inline" action="/admin/posts/<%= p.id %>?_method=DELETE" method="post"><button>Delete</button></form>
-        <a href="/posts/<%= p.id %>">View</a>
-      </li>
-    <% }) %>
-  </ul>
-</section>
+<h3>Your Posts</h3>
+<ul>
+  <% (posts || []).forEach(post => { %>
+    <li><%= post.title %></li>
+  <% }) %>
+</ul>

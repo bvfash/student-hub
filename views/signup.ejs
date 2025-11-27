@@ -1,14 +1,14 @@
-<% layout('layout') -%>
+<h1>Create Account</h1>
 
-<h1>Signup (Students)</h1>
-<form method="post" action="/signup">
+<form action="/auth/signup" method="POST">
   <label>Name</label>
-  <input name="name" required />
+  <input type="text" name="name" required>
+
   <label>Email</label>
-  <input type="email" name="email" required />
+  <input type="email" name="email" required>
+
   <label>Password</label>
-  <input type="password" name="password" required minlength="6" />
-  <label>Grade / Class (optional)</label>
-  <input name="grade" />
-  <button type="submit">Sign up</button>
+  <input type="password" name="password" required>
+
+  <button type="submit">Signup</button>
 </form>
